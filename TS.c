@@ -139,7 +139,6 @@ int ** findMinRoute(float ** tsp,int n,bool start_zero)
 	uint8_t * visitedRouteList = calloc(sizeof (uint8_t), n);
 	
 	/* Create a list of all edges */
-	printf("Create a list of all edges\n");
 	Edge * edges = malloc(sizeof(Edge) *n*n);
 	for(int i = 0;i<n;i++){
 		for(int j = 0;j<n;j++){
@@ -150,9 +149,6 @@ int ** findMinRoute(float ** tsp,int n,bool start_zero)
 			edges[index].value = tsp[i][j];
 		}
 	}
-	// for(int i = 0;i<n*n;i++){
-		// printf("from %d to %d with value: %f\n", edges[i].v1,edges[i].v2,edges[i].value);
-	// }
 	Edge * path_edges = malloc(sizeof(Edge) * n);
 	/* Sort the edges from smallest to largest */
 	
@@ -188,8 +184,8 @@ int ** findMinRoute(float ** tsp,int n,bool start_zero)
 		sum += path_edges[i].value;
 	}
 	
-	printf("Minimum Cost is : ");
-	printf("%f\n",sum);
+	// printf("Minimum Cost is : ");
+	// printf("%f\n",sum);
 	// for (int i = 0; i < n; i++) {
 		// printf("%d: %d %d\n",i,adjacency_list[i][0],adjacency_list[i][1]);
 	// }

@@ -6,8 +6,10 @@
 #include "TS.h"
 #define _N_ 10
 
+// q17 w21 b9 p19 o11 r12 i8 m10 o4 L14
+
 // char * island_locations[_N_] = {"q17","w21","b9","p19","o11","r12","i8","m10","o4","L14"};
-bool zero_start = false;
+// bool zero_start = false;
 typedef struct island
 {
 	char * name;
@@ -60,7 +62,7 @@ void calculateIslandDistances2(Island * islands, float ** island_distances, int 
 
 static void printPath(int ** adjacency_list,char ** island_locations ,int parent,int current_index){
 	int child;
-	if(adjacency_list[current_index][ 0] == parent){
+	if(adjacency_list[current_index][0] == parent){
 		child = adjacency_list[current_index][ 1];
 	}
 	else{
@@ -81,52 +83,58 @@ static void printPath(int ** adjacency_list,char ** island_locations ,int parent
 	}
 }
 
+int findStartIndex(int ** adjacency_list, int n) {
+	for(int i = 0; i < n; i++){
+		if(adjacency_list[i][0] == -1 || adjacency_list[i][1] == -1){
+			return i;
+		}
+	}
+	return -1;
+}
+
 int main(int argc, char ** argv)
 {
-	// bool zero_start = false;
+	bool zero_start = false;
 	int n = argc-1;
 	if(n<2){
 		fprintf(stderr,"Needs at least 2 locations");
 		exit(1);
 	}
 	
-	char ** island_locations_2 = (argv + 1);
-	// if(strcmp(island_locations_2[0],"true")){
-		// zero_start = true;
-		// island_locations_2++;
-		// n--;
-	// }
-	// else if(strcmp(island_locations_2[0],"false")){
-		// zero_start = false;
-		// island_locations_2++;
-		// n--;
-	// }
-	for(int i = 0; i<n;i++){
-		printf("%s ",island_locations_2[i]);
+	char ** island_locations_2 = &argv[1];
+	if(strcmp(island_locations_2[0],"true") == 0){
+		zero_start = true;
+		island_locations_2++;
+		n--;
 	}
-	printf("\n");
+	else if(strcmp(island_locations_2[0],"false") == 0){
+		zero_start = false;
+		island_locations_2++;
+		n--;
+	}
+	// for(int i = 0; i<n;i++){
+	// 	printf("%s ",island_locations_2[i]);
+	// }
+	// printf("\n");
 	
-	Island islands[_N_];
 	Island * islands_2 = malloc(sizeof(Island)*n);
 	locationsToIslands(island_locations_2,islands_2,n);
-	float island_distances[_N_][_N_];
 	float ** island_distances_2 = malloc(sizeof(float*) * n);
 	for(int i = 0; i< n;i++){
 		island_distances_2[i] = malloc(sizeof(float)*n);
 	}
 	
-	// calculateIslandDistances(islands,island_distances[0],n);
 	calculateIslandDistances2(islands_2,island_distances_2,n);
-	for(int i = 0; i<n;i++){
+	/*for(int i = 0; i<n;i++){
 		printf("%d:",i);
 		for(int j = 0; j<n;j++){ 
 			printf("%f ",island_distances_2[i][j]);
 		}
 		printf("\n");
-	}
+	}*/
 	int ** adjacency_list = findMinRoute(island_distances_2,n,zero_start);
 	
-	for (int i = 0; i < n; i++) {
+	/*for (int i = 0; i < n; i++) {
 		printf("%s: ",island_locations_2[i]);
 		if(adjacency_list[i][0] != -1){
 			printf("%s ", island_locations_2[adjacency_list[i][0]]);
@@ -135,12 +143,37 @@ int main(int argc, char ** argv)
 			printf("%s", island_locations_2[adjacency_list[i][1]]);
 		}
 		printf("\n");
+	}*/
+	int current_index;
+	if(zero_start){
+		printf("%s ",island_locations_2[0]);
+		current_index = adjacency_list[0][0] == -1 ? adjacency_list[0][1] : adjacency_list[0][0];
+		/*if(adjacency_list[0][0] == -1){
+			current_index = adjacency_list[0][1];
+		}
+		else{
+			current_index = adjacency_list[0][0];
+		}*/
+		printPath(adjacency_list,island_locations_2,0,current_index);
+
+	}
+	else{
+		int starting_index = findStartIndex(adjacency_list,n);
+		if(starting_index == -1){
+			return 1;
+		}
+		printf("%s ",island_locations_2[starting_index]);
+		current_index = adjacency_list[starting_index][0] == -1 ? adjacency_list[starting_index][1] : adjacency_list[starting_index][0];
+		/*if(adjacency_list[starting_index][0] == -1){
+			current_index = adjacency_list[starting_index][1];
+		}
+		else{
+			current_index = adjacency_list[starting_index][0];
+		}*/
+		printPath(adjacency_list,island_locations_2,starting_index,current_index);
+		//finish this case
 	}
 	printf("\n");
-	printf("%s ",island_locations_2[0]);
-	printPath(adjacency_list,island_locations_2,0,adjacency_list[0][0]);
-	printf("\n");
-	printf("finished running\n");
 	for(int i = 0; i<n;i++){
 		free(adjacency_list[i]);
 	}
