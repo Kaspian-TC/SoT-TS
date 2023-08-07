@@ -32,7 +32,6 @@ void locationsToIslands(char ** locations, Island * islands, int n)
 		islands[i].y = strtol(locations[i]+1, &ptr, 10);
 		// printf("x: %d,y: %d, name %s\n",islands[i].x,islands[i].y,islands[i].name);
 	}
-	
 	return;
 }
 void calculateIslandDistances(Island * islands, float * island_distances, int n)
@@ -73,10 +72,6 @@ static void printPath(int ** adjacency_list,char ** island_locations ,int parent
 		// printf("%s ",island_locations[child]);
 		return;
 	}
-	// else if(child == ending_index){
-		// printf("%s ",island_locations[child]);
-		// return;
-	// }
 	else{
 		// printf("%s ",island_locations[child]);
 		return printPath(adjacency_list,island_locations,current_index,child);
@@ -112,10 +107,10 @@ int main(int argc, char ** argv)
 		island_locations_2++;
 		n--;
 	}
-	// for(int i = 0; i<n;i++){
-	// 	printf("%s ",island_locations_2[i]);
-	// }
-	// printf("\n");
+	/*for(int i = 0; i<n;i++){
+		printf("%s ",island_locations_2[i]);
+	}
+	printf("\n");*/
 	
 	Island * islands_2 = malloc(sizeof(Island)*n);
 	locationsToIslands(island_locations_2,islands_2,n);
@@ -132,7 +127,8 @@ int main(int argc, char ** argv)
 		}
 		printf("\n");
 	}*/
-	int ** adjacency_list = findMinRoute(island_distances_2,n,zero_start);
+	float min_sum;
+	int ** adjacency_list = findMinRoute(island_distances_2,n,zero_start,&min_sum);
 	
 	/*for (int i = 0; i < n; i++) {
 		printf("%s: ",island_locations_2[i]);
@@ -144,16 +140,11 @@ int main(int argc, char ** argv)
 		}
 		printf("\n");
 	}*/
+	printf("the best path is:\n");
 	int current_index;
 	if(zero_start){
 		printf("%s ",island_locations_2[0]);
 		current_index = adjacency_list[0][0] == -1 ? adjacency_list[0][1] : adjacency_list[0][0];
-		/*if(adjacency_list[0][0] == -1){
-			current_index = adjacency_list[0][1];
-		}
-		else{
-			current_index = adjacency_list[0][0];
-		}*/
 		printPath(adjacency_list,island_locations_2,0,current_index);
 
 	}
@@ -164,16 +155,10 @@ int main(int argc, char ** argv)
 		}
 		printf("%s ",island_locations_2[starting_index]);
 		current_index = adjacency_list[starting_index][0] == -1 ? adjacency_list[starting_index][1] : adjacency_list[starting_index][0];
-		/*if(adjacency_list[starting_index][0] == -1){
-			current_index = adjacency_list[starting_index][1];
-		}
-		else{
-			current_index = adjacency_list[starting_index][0];
-		}*/
 		printPath(adjacency_list,island_locations_2,starting_index,current_index);
 		//finish this case
 	}
-	printf("\n");
+	printf("\nWith a total length of %f map tiles", min_sum);
 	for(int i = 0; i<n;i++){
 		free(adjacency_list[i]);
 	}

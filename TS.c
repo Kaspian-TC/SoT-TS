@@ -134,7 +134,7 @@ static bool addNeighbour(int * current_vertex, int neighbour){
 		return false;
 	}
 }
-int ** findMinRoute(float ** tsp,int n,bool start_zero)
+int ** findMinRoute(float ** tsp,int n,bool start_zero,void * min_cost)
 {
 	uint8_t * visitedRouteList = calloc(sizeof (uint8_t), n);
 	
@@ -183,7 +183,7 @@ int ** findMinRoute(float ** tsp,int n,bool start_zero)
 	for(int i = 0; i<n-1;i++){
 		sum += path_edges[i].value;
 	}
-	
+	*((float *)min_cost) = sum;
 	// printf("Minimum Cost is : ");
 	// printf("%f\n",sum);
 	// for (int i = 0; i < n; i++) {
@@ -194,12 +194,3 @@ int ** findMinRoute(float ** tsp,int n,bool start_zero)
 	free (visitedRouteList);
 	return adjacency_list;
 }
-// int main()
-// {
-    // Input Matrix
-    // float tsp[4][4] = { { -1, 10, 15, 20 },
-                                 // { 10, -1, 35, 25 },
-                                 // { 15, 35, -1, 30 },
-                                 // { 20, 25, 30, -1 } };
-    // findMinRoute(tsp[0],4);
-// }
