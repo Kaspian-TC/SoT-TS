@@ -158,7 +158,7 @@ int main(int argc, char ** argv)
 		printPath(adjacency_list,island_locations_2,starting_index,current_index);
 		//finish this case
 	}
-	printf("\nWith a total length of %f map tiles", min_sum);
+	printf("\nWith a total length of %f map tiles\n", min_sum);
 	for(int i = 0; i<n;i++){
 		free(adjacency_list[i]);
 	}
