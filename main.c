@@ -1,3 +1,4 @@
+#include <emscripten.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -106,6 +107,7 @@ static int findStartIndex(int ** adjacency_list, int n) {
 	}
 	return -1;
 }
+
 /**
  * @brief Takes in a list of island locations and exits if any of them are of 
  * invalid format.
@@ -155,7 +157,8 @@ void checkEnoughInputs(int n, char ** argv){
 	}
 	return;
 }
-int main(int argc, char ** argv)
+EMSCRIPTEN_KEEPALIVE
+int notMain(int argc, char ** argv)
 {
 	bool zero_start = false;
 	int n = argc-1;
