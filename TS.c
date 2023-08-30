@@ -13,6 +13,7 @@ typedef struct edge
 #define LOW_SIZE (size/2)
 #define HIGH_SIZE (size-size/2)
 
+/* Function that helps mergesort */
 static void copyintArray(Edge *a,Edge *b,int size)
 {
 	for(int i = 0;i<size;i++)
@@ -21,43 +22,51 @@ static void copyintArray(Edge *a,Edge *b,int size)
 	}
 	return;
 }
-Edge* mergesort(Edge* input_array,const int size)
+/* Mergesort but for edge weights*/
+static Edge* mergesort(Edge* input_array,const int size)
 {
-	if(size<=1){ // if the size of the array is 1 then you can just return the array since it is already sorted
+	/* if the size of the array is 1 then you can just return the array since it
+	is already sorted */
+	if(size<=1){ 
 		return input_array;
 	}
 	else
 	{
+		// sorted_low takes the first half of the array and calls mergesort
 		Edge sorted_low[LOW_SIZE];
-		copyintArray(sorted_low,mergesort(input_array,LOW_SIZE),LOW_SIZE);// sorted_low takes the first half of the array and calls mergesort
+		copyintArray(sorted_low,mergesort(input_array,LOW_SIZE),LOW_SIZE);
+
+		// sorted_high takes the second half of the array and calls mergesort
 		Edge sorted_high[HIGH_SIZE];
-		copyintArray(sorted_high,mergesort(input_array+size/2,HIGH_SIZE),HIGH_SIZE); // sorted_high takes the second half of the array and calls mergesort
+		copyintArray(sorted_high,mergesort(input_array+size/2,HIGH_SIZE),
+		HIGH_SIZE); 
 		int k = 0; //keeps track of the index for the sorted_low
 		int j = 0; //keeps track of the index for the sorted_high
 		int i;
-		for(i = 0;i<size && k<LOW_SIZE && j<HIGH_SIZE;i++) //i goes through the entire list
+		
+		//i goes through the entire list
+		for(i = 0;i<size && k<LOW_SIZE && j<HIGH_SIZE;i++) 
 		{
-			if(sorted_low[k].value < sorted_high[j].value) 
-			{	// if sorted_low has a smaller value, then add it to the array an increment k
-				// copyEdge(input_array + i, sorted_low+k);
+			if(sorted_low[k].value < sorted_high[j].value){	
+				/* if sorted_low has a smaller value, then add it to the array
+				an increment k*/
 				input_array[i] = sorted_low[k];
 				k++;
 			}
 			else //if(sorted_low[k] >= sorted_high[j])
-			{	// if sorted_high has a smaller value (or an equal value), then add it to the array an increment j
-				// copyEdge(input_array + i, sorted_high +j);
+			{	/* if sorted_high has a smaller value (or an equal value), then 
+				add it to the array an increment j*/
 				input_array[i] = sorted_high[j];
 				j++;
 			}
 		}
-		while(j<HIGH_SIZE){ // add remaining items to array
-			// copyEdge(input_array + i, sorted_high +j);
+		// add remaining items to array
+		while(j<HIGH_SIZE){ 
 			input_array[i] = sorted_high[j];
 			j++;
 			i++;
 		}
 		while(k<LOW_SIZE){
-			// copyEdge(input_array + i, sorted_low+k);
 			input_array[i] = sorted_low[k];
 			k++;
 			i++;
@@ -65,7 +74,9 @@ Edge* mergesort(Edge* input_array,const int size)
 		return input_array;
 	}
 }
+/* Returns true if the edge can be added to both of the verticies */
 static bool canAddNeighbour(Edge e,uint8_t * visitedRouteList, bool start_zero){
+	// Makes sure that the edge is not already visited twice
 	if(visitedRouteList[e.v1] != 2 && visitedRouteList[e.v2] != 2)
 	{
 		if(start_zero){
@@ -80,60 +91,108 @@ static bool canAddNeighbour(Edge e,uint8_t * visitedRouteList, bool start_zero){
 	}
 	return false;
 }
-static bool containsCycleHelper(int ** adjacency_list, int parent,int current_index,int ending_index,int n){
+/**
+ * @brief Helper function for containsCycle
+ * @param adjacency_list 
+ * @param parent 
+ * @param current_index 
+ * @param ending_index 
+ * @return true if it can find the end index from the start index, false 
+ * otherwise
+ */
+static bool containsCycleHelper(int ** adjacency_list, int parent,
+								int current_index,int ending_index){
 	int child;
+	//assigns child to the neighbour that is not the parent
 	if(adjacency_list[current_index][ 0] == parent){
 		child = adjacency_list[current_index][ 1];
 	}
 	else{
 		child = adjacency_list[current_index][ 0];
 	}
+	//checks if there is no neighbour to the current index
 	if(child == NO_NEIGHBOUR){
 		return false;
 	}
+	//returns true if the child is the ending index
 	else if(child == ending_index){
 		return true;
 	}
+	//recursively calls the function on the child
 	else{
-		return containsCycleHelper(adjacency_list,current_index,child,ending_index,n);
+		return containsCycleHelper(adjacency_list,current_index,
+									child,ending_index);
 	}
 }
-static bool containsCycle(int ** adjacency_list, int starting_index,int ending_index,int n){
+/**
+ * @brief Checks to see if you can already get to the ending index from the 
+ * starting index
+ * @param adjacency_list 
+ * @param start_index 
+ * @param end_index 
+ * @return true if it can find the end index from the start index, false 
+ * otherwise
+ */
+static bool containsCycle(int ** adjacency_list, int start_index,int end_index){
 	
 	int child_index;
-	if(adjacency_list[starting_index][0] == ending_index || adjacency_list[starting_index][1] == ending_index){
+	//checks if the starting index is next to the ending index
+	if(adjacency_list[start_index][0] == end_index ||
+	   adjacency_list[start_index][1] == end_index){
 		return true;
 	}
-	else if(adjacency_list[starting_index][0] == NO_NEIGHBOUR && adjacency_list[starting_index][1] == NO_NEIGHBOUR){
+	//checks if the starting index has no neighbours
+	else if(adjacency_list[start_index][0] == NO_NEIGHBOUR &&
+			adjacency_list[start_index][1] == NO_NEIGHBOUR){
 		return false;
 	}
-	else if((child_index = adjacency_list[starting_index][0]) != NO_NEIGHBOUR){
-		return containsCycleHelper(adjacency_list,starting_index,child_index,ending_index,n);
+	//checks if the starting index has exactly one neighbour
+	else if((child_index = adjacency_list[start_index][0]) != NO_NEIGHBOUR ||
+			(child_index = adjacency_list[start_index][1]) != NO_NEIGHBOUR){
+		return containsCycleHelper(adjacency_list,start_index,
+								  child_index,end_index);
 	}
-	else if((child_index = adjacency_list[starting_index][1]) != NO_NEIGHBOUR){
-		return containsCycleHelper(adjacency_list,starting_index,child_index,ending_index,n);
-	}
+	/*else if((child_index = adjacency_list[starting_index][1]) != NO_NEIGHBOUR){
+		return containsCycleHelper(adjacency_list,
+		starting_index,child_index,ending_index);
+	}*/
 	printf("there is an error here\n");
 	exit(1);
 	return false;
 }
+
+/**
+ * @brief Adds a neighbour to the current vertex
+ * @param current_vertex 
+ * @param neighbour 
+ * @return true if successful, false otherwise
+ */
 static bool addNeighbour(int * current_vertex, int neighbour){
 	if(current_vertex[0] == NO_NEIGHBOUR &&
-				neighbour!=current_vertex[1])
-	{
+	   current_vertex[1] != neighbour){
 		current_vertex[0] = neighbour;
 		return true;
 	}
 	else if(current_vertex[1] == NO_NEIGHBOUR &&
-		neighbour!=current_vertex[0])
-	{
+			current_vertex[0] != neighbour){
 		current_vertex[1] = neighbour;
 		return true;
 	}
 	else{
+		fprintf(stderr,"Error: Cannot add neighbour\n");
 		return false;
 	}
 }
+
+/**
+ * @brief Calculate the minimum length path for the given tsp.
+ * @param tsp 
+ * @param n 
+ * @param start_zero 
+ * @param min_cost 
+ * @return A two dimensional array that represents the adjacency list of the
+ * minimum path.  
+ */
 int ** findMinRoute(float ** tsp,int n,bool start_zero,void * min_cost)
 {
 	uint8_t * visitedRouteList = calloc(sizeof (uint8_t), n);
@@ -150,10 +209,8 @@ int ** findMinRoute(float ** tsp,int n,bool start_zero,void * min_cost)
 		}
 	}
 	Edge * path_edges = malloc(sizeof(Edge) * n);
-	/* Sort the edges from smallest to largest */
 	
-	/* Keep adding edges to path (unless there is a cycle) */
-	int j = 0;
+	int path_index = 0;
 	int amount_visited = 0;
 	int** adjacency_list = malloc(sizeof(int*) * n);
 	for (int i = 0; i < n; i++) {
@@ -161,34 +218,35 @@ int ** findMinRoute(float ** tsp,int n,bool start_zero,void * min_cost)
 		adjacency_list[i][0] = NO_NEIGHBOUR;
 		adjacency_list[i][1] = NO_NEIGHBOUR;
 	}
+	/* Sort the edges from smallest to largest */
 	mergesort(edges,n*n);
-	for(int i = 0; i<n*n && j < n;i++){
-		if(edges[i].value != -1 && 
-		canAddNeighbour(edges[i],visitedRouteList,start_zero) &&
-		!containsCycle(adjacency_list,edges[i].v1,edges[i].v2,20)){
-			int * current_vertex = adjacency_list[edges[i].v1];
-			addNeighbour(current_vertex,edges[i].v2);
-			current_vertex = adjacency_list[edges[i].v2];
-			addNeighbour(current_vertex,edges[i].v1);
-			
-			path_edges[j] = edges[i];
-			j++;
-			visitedRouteList[edges[i].v1]++;
-			visitedRouteList[edges[i].v2]++;
+	/* Keep adding edges to path (unless there is a cycle) */
+	/* Adds verticies to the path with minimum length edges */
+	for(int edge_index = 0; edge_index<n*n && path_index < n;edge_index++){
+		Edge current_edge = edges[edge_index];
+		if(current_edge.value != -1 && 
+		canAddNeighbour(current_edge,visitedRouteList,start_zero) &&
+		!containsCycle(adjacency_list,current_edge.v1,current_edge.v2)){
+			//make the verticies neighbours
+			addNeighbour(adjacency_list[current_edge.v1],current_edge.v2);
+			addNeighbour(adjacency_list[current_edge.v2],current_edge.v1);
+			//add the edge to the path
+			path_edges[path_index] = current_edge;
+			path_index++;
+			visitedRouteList[current_edge.v1]++;
+			visitedRouteList[current_edge.v2]++;
 			
 			amount_visited+=2;
 		}
 	}
+	//Calculate the sum of edge lengths
 	float sum = 0;
 	for(int i = 0; i<n-1;i++){
 		sum += path_edges[i].value;
 	}
-	*((float *)min_cost) = sum;
-	// printf("Minimum Cost is : ");
-	// printf("%f\n",sum);
-	// for (int i = 0; i < n; i++) {
-		// printf("%d: %d %d\n",i,adjacency_list[i][0],adjacency_list[i][1]);
-	// }
+	if(min_cost != NULL){
+		*((float *)min_cost) = sum;
+	}
 	free(path_edges);
 	free(edges);
 	free (visitedRouteList);
